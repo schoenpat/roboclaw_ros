@@ -247,7 +247,7 @@ class Node:
 			
 
                 rospy.logdebug(" Encoders %d %d" % (enc1, enc2))
-                self.encodm.update_publish(enc1, enc2)
+                self.encodm.update_publish(enc2, enc1) #update_publish expects enc_left enc_right
 
                 self.updater.update()
             except:
