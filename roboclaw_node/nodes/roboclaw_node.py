@@ -11,6 +11,9 @@ from nav_msgs.msg import Odometry
 
 __author__ = "bwbazemore@uga.edu (Brad Bazemore)"
 
+g_invert_motor_axes = True
+g_flip_left_right_motors = False # By default M1=right motor M2=left motor
+
 
 # TODO need to find some better was of handling OSerror 11 or preventing it, any ideas?
 
@@ -212,6 +215,7 @@ class Node:
             status1, enc1, crc1 = None, None, None
             status2, enc2, crc2 = None, None, None
 
+
             try:
                 status1, enc1, crc1 = roboclaw.ReadEncM1(self.address)
             except ValueError:
@@ -228,11 +232,27 @@ class Node:
                 rospy.logwarn("ReadEncM2 OSError: %d", e.errno)
                 rospy.logdebug(e)
 
-            if (enc1 in locals()) & (enc2 in locals()):
+            #if (enc1 in locals()) and (enc2 in locals()):
+	    try:
+		if (g_invert_motor_axes):
+			enc1 = -enc1;
+			enc2 = -enc2;
+
+                if (g_flip_left_right_motors):
+			enc1_t = enc1;
+			enc2_t = enc2;
+
+			enc2 = enc1_t;
+			enc1 = enc2_t;
+			
+
                 rospy.logdebug(" Encoders %d %d" % (enc1, enc2))
                 self.encodm.update_publish(enc1, enc2)
 
                 self.updater.update()
+            except:
+		print("problems reading encoders")
+
             r_time.sleep()
 
     def cmd_vel_callback(self, twist):
@@ -246,6 +266,17 @@ class Node:
 
         vr = linear_x + twist.angular.z * self.BASE_WIDTH / 2.0  # m/s
         vl = linear_x - twist.angular.z * self.BASE_WIDTH / 2.0
+
+	if (g_invert_motor_axes):
+		vr = -vr
+		vl = -vl
+
+	if (g_flip_left_right_motors):
+		vr_t = vr
+		vl_t = vl
+		vr = vl_t
+		vl = vr_t
+
 
         vr_ticks = int(vr * self.TICKS_PER_METER)  # ticks/s
         vl_ticks = int(vl * self.TICKS_PER_METER)
