@@ -91,7 +91,7 @@ class EncoderOdom:
         br.sendTransform((cur_x, cur_y, 0),
                          tf.transformations.quaternion_from_euler(0, 0, cur_theta),
                          current_time,
-                         "base_link",
+                         "base_footprint",
                          "odom")
 
         odom = Odometry()
@@ -110,7 +110,7 @@ class EncoderOdom:
         odom.pose.covariance[28] = 99999
         odom.pose.covariance[35] = 0.01
 
-        odom.child_frame_id = 'base_link'
+        odom.child_frame_id = 'base_footprint'
         odom.twist.twist.linear.x = vx
         odom.twist.twist.linear.y = 0
         odom.twist.twist.angular.z = vth
@@ -203,7 +203,7 @@ class Node:
         while not rospy.is_shutdown():
 
             if (rospy.get_rostime() - self.last_set_speed_time).to_sec() > 1:
-                rospy.loginfo("Did not get comand for 1 second, stopping")
+                rospy.logdebug("Did not get comand for 1 second, stopping")
                 try:
                     roboclaw.ForwardM1(self.address, 0)
                     roboclaw.ForwardM2(self.address, 0)
