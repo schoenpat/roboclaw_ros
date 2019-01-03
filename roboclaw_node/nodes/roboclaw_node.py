@@ -12,7 +12,7 @@ from nav_msgs.msg import Odometry
 __author__ = "bwbazemore@uga.edu (Brad Bazemore)"
 
 g_invert_motor_axes = True
-g_flip_left_right_motors = False # By default M1=right motor M2=left motor
+g_flip_left_right_motors = True # By default M1=right motor M2=left motor
 
 
 # TODO need to find some better was of handling OSerror 11 or preventing it, any ideas?
@@ -186,7 +186,7 @@ class Node:
         self.encodm = EncoderOdom(self.TICKS_PER_METER, self.BASE_WIDTH)
         self.last_set_speed_time = rospy.get_rostime()
 
-        rospy.Subscriber("cmd_vel", Twist, self.cmd_vel_callback)
+        rospy.Subscriber("base/cmd_vel", Twist, self.cmd_vel_callback)
 
         rospy.sleep(1)
 
