@@ -186,7 +186,7 @@ class Node:
         self.encodm = EncoderOdom(self.TICKS_PER_METER, self.BASE_WIDTH)
         self.last_set_speed_time = rospy.get_rostime()
 
-        rospy.Subscriber("base/cmd_vel", Twist, self.cmd_vel_callback)
+        rospy.Subscriber("base/cmd_vel", Twist, self.cmd_vel_callback, queue_size=1, tcp_nodelay=True)
 
         rospy.sleep(1)
 
@@ -202,7 +202,7 @@ class Node:
         r_time = rospy.Rate(10)
         while not rospy.is_shutdown():
 
-            if (rospy.get_rostime() - self.last_set_speed_time).to_sec() > 1:
+            if (rospy.get_rostime() - self.last_set_speed_time).to_sec() > 0.3:
                 rospy.logdebug("Did not get comand for 1 second, stopping")
                 try:
                     roboclaw.ForwardM1(self.address, 0)
